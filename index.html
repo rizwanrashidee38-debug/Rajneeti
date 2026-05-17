@@ -1,6 +1,6 @@
 
-
-        <!DOCTYPE html>
+            
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -64,10 +64,9 @@
         }
         .seat {
             width: 100%;
-            padding-top: 100%; /* Keeps seats perfectly square */
+            padding-top: 100%;
             position: relative;
             border-radius: 3px;
-            background-color: #444;
         }
         .seat-inner {
             position: absolute;
@@ -78,9 +77,9 @@
         /* PARTY LEGEND SYMBOLS */
         .party-legend {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             background-color: #261910;
-            padding: 6px;
+            padding: 8px;
             border-radius: 4px;
             margin-bottom: 15px;
             font-size: 0.75rem;
@@ -89,11 +88,6 @@
             display: flex;
             align-items: center;
             gap: 5px;
-        }
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 5px;
         }
 
         /* POLITICIAN PROFILE DOSSIER */
@@ -104,6 +98,7 @@
             border-radius: 5px;
             margin-bottom: 15px;
             font-size: 0.85rem;
+            line-height: 1.4;
         }
 
         #bill-box {
@@ -114,6 +109,9 @@
             text-align: center;
             margin-bottom: 15px;
             min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .btn-container {
             display: flex;
@@ -140,19 +138,19 @@
         <div class="stats-box">
             <div class="stat">Year: <span id="year" style="color: #ff9800;">2026</span></div>
             <div class="stat">Approval: <span id="pop" style="color: #4caf50;">50</span>%</div>
-            <div class="stat" style="grid-column: span 2;">Treasury: ₹<span id="cash" style="color: #ffeb3b;">1000</span> Cr (Net: <span id="income">+0</span>/yr)</div>
+            <div class="stat" style="grid-column: span 2;">Treasury: ₹<span id="cash" style="color: #ffeb3b;">1000</span> Cr (Net: <span id="income">+100</span>/yr)</div>
         </div>
 
         <div class="parliament-header">PARLIAMENT SEAT ALLOCATION (100 TOTAL)</div>
         <div id="parliament-grid"></div>
 
         <div class="party-legend">
-            <div class="legend-item"><div class="dot" style="background:#ff3333;"></div> <span>🚩 National (45)</span></div>
-            <div class="legend-item"><div class="dot" style="background:#3388ff;"></div> <span>☀️ Progress (35)</span></div>
-            <div class="legend-item"><div class="dot" style="background:#33cc33;"></div> <span>💼 Alliance (20)</span></div>
+            <div class="legend-item"><span style="color:#ff3333;">🚩</span> <span id="lbl-nat">National (45)</span></div>
+            <div class="legend-item"><span style="color:#3388ff;">☀️</span> <span id="lbl-prog">Progress (35)</span></div>
+            <div class="legend-item"><span style="color:#33cc33;">💼</span> <span id="lbl-all">Alliance (20)</span></div>
         </div>
 
-        <h3>CURRENT PRIME CANDIDATE</h3>
+        <h3>CURRENT BILL SPONSOR</h3>
         <div id="profile-box">
             <strong>Name:</strong> <span id="char-name">---</span><br>
             <strong>Party Faction:</strong> <span id="char-party">---</span><br>
@@ -191,13 +189,16 @@
             alliance: { color: "#33cc33", seats: 20, name: "Business Alliance", symbol: "💼" }
         };
 
-        const candidateFirstNames = ["Rohan", "Amit", "Vikram", "Sanjay", "Priya", "Arjun", "Meera"];
-        const candidateLastNames = ["Sharma", "Verma", "Patel", "Singh", "Joshi", "Reddy", "Mehta"];
+        const candidateFirstNames = ["Rohan", "Amit", "Vikram", "Sanjay", "Priya", "Arjun", "Meera", "Karan", "Rahul", "Anjali"];
+        const candidateLastNames = ["Sharma", "Verma", "Patel", "Singh", "Joshi", "Reddy", "Mehta", "Das", "Nair", "Kapoor"];
 
         const billDatabase = [
-            { text: "Increase corporate tax on Business Alliance corporations?", popChange: 10, cashChange: 300, netIncomeChange: 40 },
-            { text: "Fund major urban modern infrastructure layouts?", popChange: 15, cashChange: -400, netIncomeChange: -20 },
-            { text: "Impose strict security monitoring laws championed by Nationalists?", popChange: -5, cashChange: -50, netIncomeChange: 10 }
+            { text: "Increase corporate tax on Business Alliance corporations to fill state funds?", popChange: 10, cashChange: 200, netIncomeChange: 40, targetParty: "alliance", dynamicSeatShift: -3 },
+            { text: "Fund a major urban green infrastructure transportation layout?", popChange: 15, cashChange: -300, netIncomeChange: -20, targetParty: "progress", dynamicSeatShift: 4 },
+            { text: "Impose strict state cybersecurity monitoring laws championed by Nationalists?", popChange: -10, cashChange: -50, netIncomeChange: 10, targetParty: "national", dynamicSeatShift: 3 },
+            { text: "Pass a sweeping agricultural subsidy plan to lower farming overheads?", popChange: 15, cashChange: -200, netIncomeChange: -30, targetParty: "progress", dynamicSeatShift: 2 },
+            { text: "Deregulate industrial environmental rules to boost mining production?", popChange: -15, cashChange: 350, netIncomeChange: 60, targetParty: "alliance", dynamicSeatShift: 4 },
+            { text: "Increase local police department budgets across all internal districts?", popChange: 5, cashChange: -100, netIncomeChange: -15, targetParty: "national", dynamicSeatShift: 2 }
         ];
 
         let selectedBill = null;
@@ -212,6 +213,12 @@
             for(let i=0; i<parties.progress.seats; i++) seatArray.push(parties.progress.color);
             for(let i=0; i<parties.alliance.seats; i++) seatArray.push(parties.alliance.color);
 
+            // Dynamically ensure it stops cleanly at 100 boxes if math fragments
+            seatArray = seatArray.slice(0, 100);
+            while(seatArray.length < 100) {
+                seatArray.push("#444");
+            }
+
             seatArray.forEach(color => {
                 let seat = document.createElement("div");
                 seat.className = "seat";
@@ -221,6 +228,11 @@
                 seat.appendChild(inner);
                 grid.appendChild(seat);
             });
+
+            // Update Labels
+            document.getElementById("lbl-nat").innerText = `National (${parties.national.seats})`;
+            document.getElementById("lbl-prog").innerText = `Progress (${parties.progress.seats})`;
+            document.getElementById("lbl-all").innerText = `Alliance (${parties.alliance.seats})`;
         }
 
         // Generate a random dynamic politician profile card
@@ -245,7 +257,7 @@
             let randomIndex = Math.floor(Math.random() * billDatabase.length);
             selectedBill = billDatabase[randomIndex];
             document.getElementById("bill-text").innerText = selectedBill.text;
-            generateCandidate(); // New profile scales load per bill proposal
+            generateCandidate();
         }
 
         function castVote(isPassed) {
@@ -254,16 +266,80 @@
                 treasury += selectedBill.cashChange;
                 baseIncome += selectedBill.netIncomeChange;
                 
-                // Real-time shifting political seats map simulation logic
-                if(selectedBill.popChange > 0) {
-                    parties.progress.seats += 2;
-                    parties.national.seats -= 2;
-                } else {
-                    parties.national.seats += 1;
-                    parties.alliance
-    
+                // Seat shift math logic
+                let shift = selectedBill.dynamicSeatShift;
+                let party = selectedBill.targetParty;
+
+                if (party === "progress") {
+                    parties.progress.seats += shift;
+                    parties.national.seats -= Math.floor(shift/2);
+                    parties.alliance.seats -= Math.ceil(shift/2);
+                } else if (party === "national") {
+                    parties.national.seats += shift;
+                    parties.progress.seats -= Math.floor(shift/2);
+                    parties.alliance.seats -= Math.ceil(shift/2);
+                } else if (party === "alliance") {
+                    parties.alliance.seats += shift;
+                    parties.progress.seats -= Math.floor(shift/2);
+                    parties.national.seats -= Math.ceil(shift/2);
+                }
+
+                // Balance scales to prevent negative party volumes
+                parties.progress.seats = Math.max(5, parties.progress.seats);
+                parties.national.seats = Math.max(5, parties.national.seats);
+                parties.alliance.seats = Math.max(5, parties.alliance.seats);
+                
+                // Lock total sum back to 100 seats exactly
+                parties.national.seats = 100 - (parties.progress.seats + parties.alliance.seats);
+            }
             
-            
+            popularity = Math.max(0, Math.min(100, popularity));
+            updateUI();
+            checkGameOver();
 
+            if (popularity > 0 && treasury > 0) {
+                activeBillsThisYear++;
+                pickRandomBill();
+            }
+        }
 
+        function endSession() {
+            document.getElementById("bill-title").innerText = "SESSION CONCLUDED";
+            document.getElementById("bill-text").innerText = "All architectural laws for this operational window successfully reviewed.";
+            document.getElementById("vote-actions").classList.add("hidden");
+            document.getElementById("turn-actions").classList.remove("hidden");
+        }
 
+        function advanceYear() {
+            currentYear++;
+            treasury += baseIncome;
+            activeBillsThisYear = 0;
+            document.getElementById("turn-actions").classList.add("hidden");
+            document.getElementById("vote-actions").classList.remove("hidden");
+            updateUI();
+            checkGameOver();
+            if (popularity > 0 && treasury > 0) pickRandomBill();
+        }
+
+        function updateUI() {
+            document.getElementById("year").innerText = currentYear;
+            document.getElementById("pop").innerText = popularity;
+            document.getElementById("cash").innerText = treasury;
+            let netElement = document.getElementById("income");
+            netElement.innerText = (baseIncome >= 0 ? "+" : "") + baseIncome;
+            netElement.style.color = baseIncome >= 0 ? "#4caf50" : "#f44336";
+            renderParliament();
+        }
+
+        function checkGameOver() {
+            if (popularity <= 0 || treasury <= 0) {
+                document.getElementById("game-container").innerHTML = `<h2>GAME OVER</h2><button onclick="window.location.reload()" style="background-color: #8b5a2b; margin-top:15px; width:100%;">RETRY</button>`;
+            }
+        }
+
+        // Bootup
+        updateUI();
+        pickRandomBill();
+    </script>
+</body>
+</html>
