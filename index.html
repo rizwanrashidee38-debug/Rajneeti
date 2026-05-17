@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rajneeti: Political Simulator</title>
+    <style>
+        body {
+            background-color: #2b1f1d;
+            color: #f4ecd8;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        #game-container {
+            max-width: 500px;
+            width: 100%;
+            border: 3px solid #8b5a2b;
+            padding: 20px;
+            background-color: #3d2b1f;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+            border-radius: 8px;
+        }
+        h2, h3 {
+            color: #d4af37;
+            text-align: center;
+        }
+        .stats-box {
+            display: flex;
+            justify-content: space-around;
+            background-color: #1a110b;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .stat {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        #bill-box {
+            background-color: #4a3525;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #8b5a2b;
+            text-align: center;
+            margin-bottom: 25px;
+            min-height: 80px;
+        }
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            background-color: #8b5a2b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:active {
+            background-color: #5c3a1a;
+        }
+        #log-text {
+            font-style: italic;
+            color: #bfa38a;
+            text-align: center;
+            min-height: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <h2>RAJNEETI SIMULATOR</h2>
+        
+        <div class="stats-box">
+            <div class="stat">Approval: <span id="pop" style="color: #4caf50;">50</span>%</div>
+            <div class="stat">Funds: ₹<span id="cash" style="color: #ffeb3b;">1000</span> Cr</div>
+        </div>
+
+        <div id="bill-box">
+            <h3>PROPOSED BILL</h3>
+            <p id="bill-text">Loading political bills...</p>
+        </div>
+
+        <div class="btn-container">
+            <button onclick="castVote(true)" style="background-color: #2e7d32;">PASS LAW</button>
+            <button onclick="castVote(false)" style="background-color: #c62828;">REJECT</button>
+        </div>
+
+        <hr style="border: 1px solid #5c3a1a; margin-top: 20px;">
+        <p id="log-text">Welcome, Leader. Build your empire.</p>
+    </div>
+
+    <script>
+        let popularity = 50;
+        let treasury = 1000;
+        let currentBillIndex = 0;
+
+        const bills = [
+            { text: "Increase corporate tax on major tech businesses to boost national funds?", popChange: -10, cashChange: 400 },
+            { text: "Introduce a nationwide free universal healthcare scheme?", popChange: 20, cashChange: -500 },
+            { text: "Legalize and heavily tax mobile sports betting and gaming apps?", popChange: 5, cashChange: 200 },
+            { text: "Reduce defense and military spending to reallocate budget?", popChange: -15, cashChange: 300 },
+            { text: "Launch a massive nationwide highway and infrastructure upgrading project?", popChange: 15, cashChange: -400 }
+        ];
+
+        function displayBill() {
+            if (currentBillIndex < bills.length) {
+                document.getElementById("bill-text").innerText = bills[currentBillIndex].text;
+            } else {
+                document.getElementById("bill-box").innerHTML = "<h3>Session Complete</h3><p>You successfully managed all parliamentary bills for this term!</p>";
+                document.querySelector(".btn-container").style.display = "none";
+            }
+        }
+
+        function castVote(isPassed) {
+            let currentBill = bills[currentBillIndex];
+            
+            if (isPassed) {
+                popularity += currentBill.popChange;
+                treasury += currentBill.cashChange;
+                document.getElementById("log-text").innerText = "Bill passed into law.";
+            } else {
+                document.getElementById("log-text").innerText = "You rejected/vetoed the bill.";
+            }
+
+            if (popularity > 100) popularity = 100;
+            if (popularity < 0) popularity = 0;
+
+            document.getElementById("pop").innerText = popularity;
+            document.getElementById("cash").innerText = treasury;
+
+            if (popularity <= 0) {
+                document.getElementById("game-container").innerHTML = "<h2>GAME OVER</h2><p style='text-align:center;'>You were ousted from power with a 0% approval rating!</p>";
+                return;
+            }
+            if (treasury <= 0) {
+                document.getElementById("game-container").innerHTML = "<h2>GAME OVER</h2><p style='text-align:center;'>The government went entirely bankrupt!</p>";
+                return;
+            }
+
+            currentBillIndex++;
+            displayBill();
+        }
+
+        displayBill();
+    </script>
+</body>
+</html>
