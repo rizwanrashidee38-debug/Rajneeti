@@ -1,319 +1,371 @@
 
-     <!DOCTYPE html>
+       <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rajneeti: Candidate Career</title>
+    <title>Rajneeti: Supreme Statesman Edition</title>
     <style>
+        :root {
+            --bg-dark: #1e1412;
+            --panel-bg: #2d1e1b;
+            --inner-bg: #1a100f;
+            --accent-gold: #d4af37;
+            --text-light: #f4ecd8;
+            --bjp-orange: #ff9933;
+            --inc-blue: #1976d2;
+            --aap-green: #388e3c;
+        }
+
         body {
-            background-color: #2b1f1d;
-            color: #f4ecd8;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
             font-family: 'Courier New', Courier, monospace;
             padding: 10px;
             margin: 0;
             display: flex;
             justify-content: center;
         }
+
         #game-container {
-            max-width: 500px;
+            max-width: 550px;
             width: 100%;
             border: 3px solid #8b5a2b;
             padding: 15px;
-            background-color: #3d2b1f;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
-            border-radius: 8px;
+            background-color: var(--panel-bg);
+            box-shadow: 0px 6px 15px rgba(0,0,0,0.6);
+            border-radius: 10px;
             box-sizing: border-box;
         }
+
         h2, h3 {
-            color: #d4af37;
+            color: var(--accent-gold);
             text-align: center;
-            margin: 5px 0;
+            margin: 8px 0;
+            text-transform: uppercase;
         }
-        .setup-input, .setup-select {
-            width: 100%;
-            padding: 10px;
-            background-color: #1a110b;
-            border: 1px solid #8b5a2b;
-            color: #f4ecd8;
-            font-family: inherit;
+
+        /* TABS NAVIGATION */
+        .tab-navigation {
+            display: flex;
+            gap: 5px;
             margin-bottom: 15px;
-            box-sizing: border-box;
         }
-        .stats-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            background-color: #1a110b;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 12px;
-        }
-        .stat {
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 5px;
+            background-color: #5c3a1a;
+            color: var(--text-light);
+            border: 1px solid #8b5a2b;
+            cursor: pointer;
+            font-size: 0.75rem;
             font-weight: bold;
-            font-size: 0.9rem;
-            text-align: center;
+            font-family: inherit;
         }
-        #profile-box {
-            background-color: #22140c;
-            border: 1px dashed #d4af37;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-            line-height: 1.5;
+
+        .tab-btn.active {
+            background-color: var(--accent-gold);
+            color: #1a110b;
         }
-        #bill-box {
-            background-color: #4a3525;
+
+        /* CORE METRICS DASHBOARD */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            background-color: var(--inner-bg);
             padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #8b5a2b;
-            text-align: center;
+            border-radius: 6px;
             margin-bottom: 15px;
-            min-height: 120px;
+            border: 1px solid #4a312c;
+        }
+
+        .metric {
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        /* PARLIAMENT VISUAL GRID */
+        #parliament-visual-frame {
+            background-color: var(--inner-bg);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .parliament-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 3px;
+            margin-top: 5px;
+        }
+
+        .seat {
+            width: 100%;
+            padding-top: 100%;
+            position: relative;
+            border-radius: 2px;
+        }
+
+        .seat-inner {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 2px;
+        }
+
+        /* PARTY PROFILES TABLE */
+        .party-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            background-color: var(--inner-bg);
+            margin-bottom: 15px;
+        }
+
+        .party-table th, .party-table td {
+            border: 1px solid #4a312c;
+            padding: 6px;
+            text-align: center;
+        }
+
+        .party-table th {
+            background-color: #3d2521;
+            color: var(--accent-gold);
+        }
+
+        /* INTERACTION PANEL */
+        .interaction-panel {
+            background-color: #432d29;
+            border: 1px solid #6e4941;
+            padding: 15px;
+            border-radius: 6px;
+            min-height: 140px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            text-align: center;
+            margin-bottom: 15px;
         }
-        .btn-container {
+
+        .btn-stack {
             display: flex;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-top: 10px;
         }
-        button {
+
+        button.action-btn {
             flex: 1;
             padding: 12px;
             color: white;
             border: none;
             border-radius: 4px;
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             cursor: pointer;
             font-family: inherit;
         }
+
         .hidden { display: none !important; }
+        .setup-screen { text-align: left; }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--inner-bg);
+            border: 1px solid #8b5a2b;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <div id="setup-screen">
-            <h2>CANDIDATE REGISTRATION</h2>
+        <div id="setup-view">
+            <h2>CONSTITUTIONAL ASSEMBLY CREATION</h2>
             <hr style="border: 1px solid #5c3a1a; margin-bottom: 20px;">
-            <label>YOUR CANDIDATE NAME:</label>
-            <input type="text" id="player-name-input" class="setup-input" placeholder="Your Name" value="Rizwan">
+            <label>CHIEF EXECUTIVE LEADER NAME:</label>
+            <input type="text" id="leader-input" value="Rizwan" placeholder="Enter name...">
             
-            <label>JOIN A POLITICAL PARTY:</label>
-            <select id="player-party-select" class="setup-select">
-                <option value="BJP">🌻 Nationalist Front (BJP)</option>
-                <option value="Congress">✋🏻 Progressive Party (INC)</option>
-                <option value="AAP">🧹 Common Man Alliance (AAP)</option>
+            <label>SELECT FOUNDING PARTY TICKET:</label>
+            <select id="party-select">
+                <option value="bjp">🌻 Bhartiya Janata Party (Nationalist)</option>
+                <option value="inc">✋🏻 Indian National Congress (Progressive)</option>
+                <option value="aap">🧹 Aam Aadmi Party (Welfarist)</option>
             </select>
             
-            <button onclick="startGame()" style="background-color: #ff9800; color: #1a110b; font-size: 1.1rem;">LAUNCH CAMPAIGN 📄</button>
+            <button onclick="initGame()" class="action-btn" style="background-color: #e65100; width: 100%;">FORM THE REPUBLIC 🏛️</button>
         </div>
 
-        <div id="main-board" class="hidden">
-            <h2>POLITICAL CAREER DASHBOARD</h2>
+        <div id="sim-view" class="hidden">
+            <h2>RAJNEETI SUPREME LAWGIVER</h2>
             
-            <div class="stats-box">
-                <div class="stat">Year: <span id="year" style="color: #ff9800;">2026</span></div>
-                <div class="stat" style="color: #ff5722;">ELECTION IN: <span id="countdown">5</span> YRS</div>
-                <div class="stat" style="grid-column: span 2; border-bottom: 1px dashed #33221a; padding-bottom: 5px; margin-bottom: 5px;">
-                    National Approval: <span id="nat-pop" style="color: #4caf50;">50</span>%
+            <div class="tab-navigation">
+                <button class="tab-btn active" onclick="switchTab('parliament')">PARLIAMENT</button>
+                <button class="tab-btn" onclick="switchTab('budget')">FINANCE & BUDGET</button>
+                <button class="tab-btn" onclick="switchTab('laws')">CONSTITUTIONAL LAWS</button>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="metric">Year: <span id="lbl-year" style="color: #ff9800;">2026</span></div>
+                <div class="metric" style="text-align: right;">Term End: <span id="lbl-term" style="color: #ff5722;">5</span> yrs</div>
+                <div class="metric">Stability: <span id="lbl-stability" style="color: #4caf50;">100</span>%</div>
+                <div class="metric" style="text-align: right;">National Approval: <span id="lbl-approval" style="color: #00e676;">50</span>%</div>
+                <div class="metric" style="grid-column: span 2; border-top: 1px dashed #5c3a1a; padding-top: 6px; margin-top: 4px;">
+                    Treasury Reserve: <span style="color: #ffeb3b;">₹<span id="lbl-treasury">1000</span> Cr</span>
                 </div>
-                <div class="stat" style="grid-column: span 2; background-color: #110a06; padding: 6px; border-radius: 3px;">
-                    State Budget: ₹<span id="treasury" style="color: #ffeb3b;">1000</span> Cr
+            </div>
+
+            <div id="tab-parliament" class="tab-content">
+                <div id="parliament-visual-frame">
+                    <div class="parliament-header" style="text-align: center; font-size: 0.75rem; color:#bfa38a;">HOUSE BALANCE SEATS (100 TOTAL)</div>
+                    <div class="parliament-grid" id="parliament-box"></div>
                 </div>
+                
+                <table class="party-table">
+                    <thead>
+                        <tr>
+                            <th>Party</th>
+                            <th>Seats</th>
+                            <th>Stance</th>
+                            <th>Coalition Aligned</th>
+                        </tr>
+                    </thead>
+                    <tbody id="party-table-body">
+                        </tbody>
+                </table>
             </div>
 
-            <h3>YOUR PERSONAL METRICS</h3>
-            <div id="profile-box">
-                <strong>Candidate:</strong> <span id="lbl-name" style="color:#d4af37;">---</span><br>
-                <strong>Party Ticket:</strong> <span id="lbl-party">---</span><br>
-                <hr style="border: 0; border-top: 1px solid #44332a; margin: 8px 0;">
-                <strong>Constituency Support:</strong> <span id="lbl-local" style="color: #4caf50;">50</span>% (Voters in your district)<br>
-                <strong>Party Standing:</strong> <span id="lbl-standing" style="color: #3388ff;">70</span>/100 (High standing prevents expulsion)<br>
-                <strong>Personal Bank Account:</strong> ₹<span id="lbl-wealth" style="color: #ffeb3b;">5</span> Cr (Your private money)
+            <div id="tab-budget" class="tab-content hidden">
+                <table class="party-table">
+                    <thead>
+                        <tr>
+                            <th>Fiscal Parameter</th>
+                            <th>Annual Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Base Corporate Taxation Revenues</td><td style="color:#4caf50;">+₹300 Cr</td></tr>
+                        <tr><td>Income Tax Surcharges</td><td style="color:#4caf50;">+₹200 Cr</td></tr>
+                        <tr><td>Infrastructure Maintenance Costs</td><td style="color:#f44336;">-₹150 Cr</td></tr>
+                        <tr><td>Social Security/Welfare Overhead</td><td style="color:#f44336;">-₹150 Cr</td></tr>
+                        <tr style="background-color: #110a09; font-weight: bold;">
+                            <td>Net Annual Projected Surplus</td>
+                            <td id="lbl-net-surplus">₹+200 Cr</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div id="bill-box">
-                <h3 id="bill-title" style="color: #bfa38a; font-size: 1rem;">LEGISLATIVE AGENDA</h3>
-                <p id="bill-text">Loading situation...</p>
+            <div id="tab-laws" class="tab-content hidden">
+                <table class="party-table">
+                    <thead>
+                        <tr>
+                            <th>Constitutional Enactment</th>
+                            <th>Current Enforcement Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="laws-status-table">
+                        </tbody>
+                </table>
             </div>
 
-            <div class="btn-container" id="vote-actions">
-                <button onclick="handleChoice('yes')" style="background-color: #2e7d32;">VOTE YES</button>
-                <button onclick="handleChoice('no')" style="background-color: #c62828;">VOTE NO</button>
+            <div class="interaction-panel" id="agenda-card">
+                <h3 id="agenda-title" style="font-size: 0.95rem; margin-bottom: 5px;">LEGISLATIVE INITIATIVE</h3>
+                <p id="agenda-desc" style="font-size: 0.85rem; margin: 0;">Loading legislative brief...</p>
             </div>
 
-            <div class="btn-container" id="corrupt-container">
-                <button onclick="handleChoice('bribe')" style="background-color: #e65100; border: 1px solid #ffb74d;">TAKE UNDER-THE-TABLE BRIBE 💰</button>
+            <div class="btn-stack" id="control-panel-vote">
+                <button onclick="processLegislation(true)" class="action-btn" style="background-color: #2e7d32;">PASS RESOLUTION</button>
+                <button onclick="processLegislation(false)" class="action-btn" style="background-color: #c62828;">VETO / REJECT</button>
             </div>
 
-            <div class="btn-container hidden" id="turn-actions">
-                <button onclick="advanceYear()" style="background-color: #ff9800; color: #1a110b;">END LEGISLATIVE SESSION ⏳</button>
+            <div class="btn-stack hidden" id="control-panel-turn">
+                <button onclick="executeTurnCycle()" class="action-btn" style="background-color: #ff9800; color: #1a110b;">CLOSE BILLING SESSION & ADVANCE YEAR ⏳</button>
             </div>
         </div>
     </div>
 
     <script>
-        let currentYear = 2026;
-        let electionCountdown = 5;
+        // Game Engine Architecture Core Memory Arrays
+        let playerLeaderName = "";
+        let playerPartyChoice = "";
+        
+        let fiscalYear = 2026;
+        let electionYearCountdown = 5;
+        let stabilityIndex = 80;
         let nationalApproval = 50;
-        let stateTreasury = 1000;
+        let stateTreasuryReserve = 1000;
+        let currentNetSurplus = 200;
 
-        let candidateName = "";
-        let candidateParty = "";
-        let localSupport = 55;      
-        let partyStanding = 70;     
-        let personalWealth = 5;     
+        const partySystem = {
+            bjp: { name: "BJP (Nationalists)", color: "#ff9933", seats: 48, platform: "Right-Wing", baselineLoyalty: 80 },
+            inc: { name: "INC (Progressives)", color: "#1976d2", seats: 34, platform: "Centrist", baselineLoyalty: 60 },
+            aap: { name: "AAP (Welfarists)", color: "#388e3c", seats: 18, platform: "Left-Wing", baselineLoyalty: 70 }
+        };
 
-        // MASSIVELY EXPANDED REALISTIC SCENARIO POOL
-        const scenarios = [
-            { 
-                text: "Your party high command orders you to support an aggressive land acquisition bill. It overrides local farmers' rights in your district to make room for a mega highway project.",
-                yes: { nat: 8, local: -18, standing: 15, wealth: 0, treasury: 150, log: "You loyally obeyed the party whip. Your party standing soared, but farmers back home are burning effigies of you." },
-                no: { nat: -4, local: 22, standing: -25, wealth: 0, treasury: -40, log: "You stood with your local farmers! Your constituency baseline skyrocketed, but party high command issued a warning notice." },
-                bribe: { nat: 2, local: -22, standing: 5, wealth: 10, treasury: 120, log: "The infrastructure developer secretly wired ₹10 Cr to your fund. You voted YES and suppressed local news coverage." }
+        const activeLawsRegister = {
+            "Universal Health Care Act": false,
+            "Corporate Deregulation Treaty": false,
+            "Mandatory Asset Disclosure Law": false,
+            "District Surveillance Mandate": false
+        };
+
+        const legislativeBillDatabase = [
+            {
+                title: "UNIVERSAL STATE HEALTHCARE ACTION",
+                desc: "Enact a state-backed universal healthcare pipeline strategy. Drastically raises general safety but spikes infrastructure drain pipelines long-term.",
+                lawName: "Universal Health Care Act",
+                cost: -400, structuralSurplusModifier: -80, stabilityEffect: 15, approvalEffect: 20,
+                bjpVoteChance: 30, incVoteChance: 90, aapVoteChance: 100
             },
             {
-                text: "A massive state welfare housing fund allocation is up for parliamentary distribution. Your constituency badly requires localized development grants.",
-                yes: { nat: 5, local: 15, standing: 5, wealth: 0, treasury: -200, log: "Legitimate development funds cleared! New colony housing projects are winning you vast local praise." },
-                no: { nat: -8, local: -15, standing: 5, wealth: 0, treasury: 50, log: "You blocked the welfare bill to cut state debts. Local residents feel abandoned by their own MLA." },
-                bribe: { nat: 2, local: 8, standing: 5, wealth: 5, treasury: -200, log: "You passed the bill but safely extracted ₹5 Cr from the construction contract through a shell supplier firm." }
+                title: "CORPORATE SPECIAL ZONE DEREGULATION",
+                desc: "Remove structural operations environmental barriers to free up commercial investment corridors. Boosts fiscal collection but impacts working-class favor.",
+                lawName: "Corporate Deregulation Treaty",
+                cost: 200, structuralSurplusModifier: 70, stabilityEffect: -10, approvalEffect: -15,
+                bjpVoteChance: 85, incVoteChance: 40, aapVoteChance: 15
             },
             {
-                text: "A luxury lifestyle tax is introduced. High-profile industrialists who heavily fund your party's election campaigns demand that you vote it down.",
-                yes: { nat: 15, local: 5, standing: -20, wealth: 0, treasury: 90, log: "The working class cheers your bold stand, but your party's senior treasurers are furious that you alienated core donors." },
-                no: { nat: -10, local: -8, standing: 18, wealth: 0, treasury: 0, log: "You successfully blocked the tax. Party elites praised your pragmatism and guaranteed your future ticket security." },
-                bribe: { nat: -12, local: -5, standing: 12, wealth: 7, treasury: 0, log: "An elite corporation slipped you ₹7 Cr in cash to file technical layout objections and stall the bill indefinitely." }
-            },
-            {
-                text: "An independent investigative media channel catches you on tape using government vehicles for a lavish private family function, triggering a viral social media scandal.",
-                yes: { nat: -8, local: -10, standing: -10, wealth: 0, treasury: 0, log: "You issued a public apology. The press hammered your lack of ethics, damaging both personal and party metrics." },
-                no: { nat: -5, local: -5, standing: 5, wealth: -2, treasury: 0, log: "You used ₹2 Cr of your private wealth to aggressively counter-sue the journalists. The party appreciated you fighting back." },
-                bribe: { nat: 4, local: 4, standing: -5, wealth: -4, treasury: 0, log: "You used ₹4 Cr to completely buy out the regional news network. The tape vanished, and fake positive articles replaced it." }
-            },
-            {
-                text: "A legislative proposal is submitted to mandate a strict annual asset declaration for all active politicians, rendering private balance sheets public record.",
-                yes: { nat: 20, local: 10, standing: -15, wealth: 0, treasury: -10, log: "Transparency triumphs! The public loves it, but colleagues across party lines now view you as a dangerous threat." },
-                no: { nat: -15, local: -5, standing: 15, wealth: 0, treasury: 0, log: "You voted down asset clarity. The opposition labelled your network corrupt, but peer relationships inside parliament stayed solid." },
-                bribe: { nat: -10, local: -2, standing: 10, wealth: 5, treasury: 0, log: "You publicly denounced the bill while quietly taking ₹5 Cr from a cartel to make sure it never clears subcommittee review." }
+                title: "NATIONAL DISTRICT IDENTITY WIRE MONITORING",
+                desc: "Deploy automated state surveillance tracking arrays across core borders to fortify stability protocols against foreign interference threats.",
+                lawName: "District Surveillance Mandate",
+                cost: -100, structuralSurplusModifier: -20, stabilityEffect: 25, approvalEffect: -18,
+                bjpVoteChance: 95, incVoteChance: 30, aapVoteChance: 40
             }
         ];
 
-        let activeScenario = null;
+        let loadedBill = null;
 
-        function startGame() {
-            candidateName = document.getElementById("player-name-input").value.trim() || "Rizwan";
-            candidateParty = document.getElementById("player-party-select").value;
+        function initGame() {
+            playerLeaderName = document.getElementById("leader-input").value.trim() || "Rizwan";
+            playerPartyChoice = document.getElementById("party-select").value;
 
-            document.getElementById("lbl-name").innerText = candidateName;
-            document.getElementById("lbl-party").innerText = candidateParty;
+            document.getElementById("setup-view").classList.add("hidden");
+            document.getElementById("sim-view").classList.remove("hidden");
 
-            document.getElementById("setup-screen").classList.add("hidden");
-            document.getElementById("main-board").classList.remove("hidden");
-
-            updateUI();
-            nextScenario();
+            buildParliamentVisuals();
+            renderPartyTable();
+            populateLawsRegister();
+            loadNextBill();
         }
 
-        function nextScenario() {
-            document.getElementById("vote-actions").classList.remove("hidden");
-            document.getElementById("corrupt-container").classList.remove("hidden");
-            document.getElementById("turn-actions").classList.add("hidden");
+        function buildParliamentVisuals() {
+            const box = document.getElementById("parliament-box");
+            box.innerHTML = "";
+            let seatMatrix = [];
 
-            let randomIndex = Math.floor(Math.random() * scenarios.length);
-            activeScenario = scenarios[randomIndex];
-            document.getElementById("bill-text").innerText = activeScenario.text;
-        }
+            Object.keys(partySystem).forEach(key => {
+                let party = partySystem[key];
+                for (let i = 0; i < party.seats; i++) seatMatrix.push(party.color);
+            });
 
-        function handleChoice(type) {
-            let action = activeScenario[type];
-
-            nationalApproval = Math.max(0, Math.min(100, nationalApproval + action.nat));
-            localSupport = Math.max(0, Math.min(100, localSupport + action.local));
-            partyStanding = Math.max(0, Math.min(100, partyStanding + action.standing));
-            personalWealth += action.wealth;
-            stateTreasury += action.treasury;
-
-            document.getElementById("bill-text").innerText = action.log;
-
-            document.getElementById("vote-actions").classList.add("hidden");
-            document.getElementById("corrupt-container").classList.add("hidden");
-            document.getElementById("turn-actions").classList.remove("hidden");
-
-            updateUI();
-            checkSurvival();
-        }
-
-        function advanceYear() {
-            currentYear++;
-            electionCountdown--;
-            
-            // Fixed base salary payout per calendar turn
-            personalWealth += 1; 
-
-            if (electionCountdown <= 0) {
-                runDistrictElection();
-                electionCountdown = 5;
-            }
-
-            updateUI();
-            checkSurvival();
-            if (localSupport > 0 && partyStanding > 0) {
-                nextScenario();
-            }
-        }
-
-        function runDistrictElection() {
-            alert(`🗳️ CONSTITUENCY GENERAL ELECTION YEAR ${currentYear}!\nLocal administrative observers are verifying district ballot calculations...`);
-            
-            if (localSupport < 50) {
-                endGame("ELECTION DEFEAT", `You captured only ${localSupport}% approval in your home voter district. An opposition rival unseated you!`);
-            } else {
-                alert(`🎉 CAREER EXTENDED!\nYour local constituency support score of ${localSupport}% safely cleared the 50% barrier. You retained your seat for another term.`);
-                localSupport = 50; 
-            }
-        }
-
-        function checkSurvival() {
-            if (partyStanding <= 15) {
-                endGame("TICKET DENIED", "Your party leadership council grew exhausted by your independent voting track record. You were stripped of your ticket!");
-            } else if (stateTreasury <= 0) {
-                endGame("FISCAL COLLAPSE", "The overall state apparatus completely defaulted on international bond obligations due to bankruptcy.");
-            }
-        }
-
-        function updateUI() {
-            document.getElementById("year").innerText = currentYear;
-            document.getElementById("countdown").innerText = electionCountdown;
-            document.getElementById("nat-pop").innerText = nationalApproval;
-            document.getElementById("treasury").innerText = stateTreasury;
-
-            document.getElementById("lbl-local").innerText = localSupport;
-            document.getElementById("lbl-standing").innerText = partyStanding;
-            document.getElementById("lbl-wealth").innerText = personalWealth;
-        }
-
-        function endGame(title, text) {
-            document.getElementById("game-container").innerHTML = `
-                <h2 style="color: #c62828;">${title}</h2>
-                <div style='background-color:#22140c; padding:15px; border-radius:5px; margin-bottom:15px; text-align:center;'>
-                    <p>${text}</p>
-                    <p style='color:#ffeb3b; font-weight:bold;'>Retirement Assets: ₹${personalWealth} Cr</p>
-                </div>
-                <button onclick="window.location.reload()" style="background-color: #8b5a2b; width:100%;">REGISTER NEXT CAMPAIGN</button>
-            `;
-        }
-    </script>
-</body>
-</html>
-       
-
-            
-            
-            
-            
-        
+            seatMatrix.forEach(color => {
+                let seat = document.createElement("div");
+                seat.className = "seat";
+                let inner = document.createElement("div");
+                inner.className = "seat-inner";
+                      
