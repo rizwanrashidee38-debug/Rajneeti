@@ -1,11 +1,14 @@
 
             
+
+            
+            
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rajneeti: Election Cycle Edition</title>
+    <title>Rajneeti: Candidate Career</title>
     <style>
         body {
             background-color: #2b1f1d;
@@ -31,7 +34,7 @@
             text-align: center;
             margin: 5px 0;
         }
-        .setup-input {
+        .setup-input, .setup-select {
             width: 100%;
             padding: 10px;
             background-color: #1a110b;
@@ -40,15 +43,6 @@
             font-family: inherit;
             margin-bottom: 15px;
             box-sizing: border-box;
-        }
-        .setup-select {
-            width: 100%;
-            padding: 10px;
-            background-color: #1a110b;
-            border: 1px solid #8b5a2b;
-            color: #f4ecd8;
-            font-family: inherit;
-            margin-bottom: 20px;
         }
         .stats-box {
             display: grid;
@@ -61,42 +55,8 @@
         }
         .stat {
             font-weight: bold;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             text-align: center;
-        }
-        #parliament-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 4px;
-            background-color: #1a110b;
-            padding: 8px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-        .seat {
-            width: 100%;
-            padding-top: 100%;
-            position: relative;
-            border-radius: 3px;
-        }
-        .seat-inner {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: 3px;
-        }
-        .party-legend {
-            display: flex;
-            justify-content: space-around;
-            background-color: #261910;
-            padding: 8px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-size: 0.75rem;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
         #profile-box {
             background-color: #22140c;
@@ -105,7 +65,7 @@
             border-radius: 5px;
             margin-bottom: 15px;
             font-size: 0.85rem;
-            line-height: 1.4;
+            line-height: 1.5;
         }
         #bill-box {
             background-color: #4a3525;
@@ -114,7 +74,7 @@
             border: 1px solid #8b5a2b;
             text-align: center;
             margin-bottom: 15px;
-            min-height: 90px;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -122,6 +82,7 @@
         .btn-container {
             display: flex;
             gap: 10px;
+            margin-bottom: 10px;
         }
         button {
             flex: 1;
@@ -141,257 +102,207 @@
 
     <div id="game-container">
         <div id="setup-screen">
-            <h2>NEW POLITICAL CAMPAIGN</h2>
+            <h2>CANDIDATE REGISTRATION</h2>
             <hr style="border: 1px solid #5c3a1a; margin-bottom: 20px;">
-            <label>ENTER YOUR LEADER NAME:</label>
-            <input type="text" id="player-name-input" class="setup-input" placeholder="e.g. Rahul Sharma" value="Rizwan">
+            <label>YOUR CANDIDATE NAME:</label>
+            <input type="text" id="player-name-input" class="setup-input" placeholder="Your Name" value="Rizwan">
             
-            <label>CHOOSE YOUR ALIGNED PARTY FACTION:</label>
+            <label>JOIN A POLITICAL PARTY:</label>
             <select id="player-party-select" class="setup-select">
-                <option value="national">🚩 Nationalist Front</option>
-                <option value="progress">☀️ Progressive Party</option>
-                <option value="alliance">💼 Business Alliance</option>
+                <option value="BJP">🌻 Nationalist Front</option>
+                <option value="Congress">✋🏻Progressive Party</option>
+                <option value="AAP">🧹 Business Alliance</option>
             </select>
             
-            <button onclick="startGame()" style="background-color: #ff9800; color: #1a110b; font-size: 1.1rem; padding: 15px;">FOUND GOVERNMENT 🏛️</button>
+            <button onclick="startGame()" style="background-color: #ff9800; color: #1a110b; font-size: 1.1rem;">LAUNCH CAMPAIGN 📄</button>
         </div>
 
         <div id="main-board" class="hidden">
-            <h2>RAJNEETI SIMULATOR</h2>
+            <h2>POLITICAL CAREER Dashboard</h2>
             
             <div class="stats-box">
                 <div class="stat">Year: <span id="year" style="color: #ff9800;">2026</span></div>
-                <div class="stat">Approval: <span id="pop" style="color: #4caf50;">50</span>%</div>
-                <div class="stat" style="grid-column: span 2;">Treasury: ₹<span id="cash" style="color: #ffeb3b;">1000</span> Cr (Net: <span id="income">+100</span>/yr)</div>
-                <div class="stat" style="grid-column: span 2; background-color: #110a06; padding: 4px; border-radius: 3px; font-size: 0.8rem;">
-                    ELECTION IN: <span id="election-countdown" style="color: #ff5722; font-weight: bold;">5</span> YEARS
+                <div class="stat" style="color: #ff5722;">ELECTION IN: <span id="countdown">5</span> YRS</div>
+                <div class="stat" style="grid-column: span 2; border-bottom: 1px dashed #33221a; padding-bottom: 5px; margin-bottom: 5px;">
+                    National Approval: <span id="nat-pop" style="color: #4caf50;">50</span>%
+                </div>
+                <div class="stat" style="grid-column: span 2; background-color: #110a06; padding: 6px; border-radius: 3px;">
+                    State Budget: ₹<span id="treasury" style="color: #ffeb3b;">1000</span> Cr
                 </div>
             </div>
 
-            <div class="parliament-header">PARLIAMENT SEAT ALLOCATION (100 TOTAL)</div>
-            <div id="parliament-grid"></div>
-
-            <div class="party-legend">
-                <div class="legend-item"><span style="color:#ff3333;">🚩</span> <span id="lbl-nat">National (45)</span></div>
-                <div class="legend-item"><span style="color:#3388ff;">☀️</span> <span id="lbl-prog">Progress (35)</span></div>
-                <div class="legend-item"><span style="color:#33cc33;">💼</span> <span id="lbl-all">Alliance (20)</span></div>
-            </div>
-
-            <h3>YOUR LEADER BRIEFING</h3>
+            <h3>YOUR PERSONAL METRICS</h3>
             <div id="profile-box">
-                <strong>Leader Name:</strong> <span id="leader-display" style="color:#d4af37;">---</span><br>
-                <strong>Affiliated Party:</strong> <span id="leader-party-display">---</span><br>
-                <strong>Next Bill Sponsor:</strong> <span id="char-name">---</span> (<span id="char-party">---</span>)
+                <strong>Candidate:</strong> <span id="lbl-name" style="color:#d4af37;">---</span><br>
+                <strong>Party Ticket:</strong> <span id="lbl-party">---</span><br>
+                <hr style="border: 0; border-top: 1px solid #44332a; margin: 8px 0;">
+                <strong>Constituency Support:</strong> <span id="lbl-local" style="color: #4caf50;">50</span>% (Voters in your district)<br>
+                <strong>Party Standing:</strong> <span id="lbl-standing" style="color: #3388ff;">70</span>/100 (High standing prevents expulsion)<br>
+                <strong>Personal Bank Account:</strong> ₹<span id="lbl-wealth" style="color: #ffeb3b;">5</span> Cr (Your private money)
             </div>
 
             <div id="bill-box">
-                <h3 id="bill-title">PROPOSED BILL</h3>
-                <p id="bill-text">Loading agenda...</p>
+                <h3 id="bill-title" style="color: #bfa38a; font-size: 1rem;">LEGISLATIVE AGENDA</h3>
+                <p id="bill-text">Loading situation...</p>
             </div>
 
             <div class="btn-container" id="vote-actions">
-                <button onclick="castVote(true)" style="background-color: #2e7d32;">PASS LAW</button>
-                <button onclick="castVote(false)" style="background-color: #c62828;">REJECT</button>
+                <button onclick="handleChoice('yes')" style="background-color: #2e7d32;">VOTE YES</button>
+                <button onclick="handleChoice('no')" style="background-color: #c62828;">VOTE NO</button>
+            </div>
+
+            <div class="btn-container" id="corrupt-container">
+                <button onclick="handleChoice('bribe')" style="background-color: #e65100; border: 1px solid #ffb74d;">TAKE UNDER-THE-TABLE BRIBE 💰</button>
             </div>
 
             <div class="btn-container hidden" id="turn-actions">
-                <button onclick="advanceYear()" style="background-color: #ff9800; color: #1a110b;">ADVANCE TO NEXT YEAR ⏳</button>
+                <button onclick="advanceYear()" style="background-color: #ff9800; color: #1a110b;">END LEGISLATIVE SESSION ⏳</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Game Core Metrics
+        // System variables
         let currentYear = 2026;
-        let popularity = 50;
-        let treasury = 1000;
-        let baseIncome = 100;
-        let activeBillsThisYear = 0;
-        const maxBillsPerYear = 3;
-        let yearsUntilElection = 5;
+        let electionCountdown = 5;
+        let nationalApproval = 50;
+        let stateTreasury = 1000;
 
-        let playerName = "";
-        let playerPartyKey = "";
+        // Candidate private variables
+        let candidateName = "";
+        let candidateParty = "";
+        let localSupport = 55;      // Vital for winning your specific seat
+        let partyStanding = 70;     // Vital for not getting fired by the party
+        let personalWealth = 5;     // Money you keep personally
 
-        const parties = {
-            national: { color: "#ff3333", seats: 45, name: "Nationalist Front", symbol: "🚩" },
-            progress: { color: "#3388ff", seats: 35, name: "Progressive Party", symbol: "☀️" },
-            alliance: { color: "#33cc33", seats: 20, name: "Business Alliance", symbol: "💼" }
-        };
-
-        const candidateFirstNames = ["Rohan", "Amit", "Vikram", "Sanjay", "Priya", "Arjun", "Meera", "Karan", "Rahul", "Anjali"];
-        const candidateLastNames = ["Sharma", "Verma", "Patel", "Singh", "Joshi", "Reddy", "Mehta", "Das", "Nair", "Kapoor"];
-
-        const billDatabase = [
-            { text: "Increase corporate tax on Business Alliance corporations to fill state funds?", popChange: 12, cashChange: 200, netIncomeChange: 40, factionModifier: "alliance" },
-            { text: "Fund a major urban green infrastructure transportation layout?", popChange: 15, cashChange: -300, netIncomeChange: -20, factionModifier: "progress" },
-            { text: "Impose strict state cybersecurity monitoring laws championed by Nationalists?", popChange: -10, cashChange: -50, netIncomeChange: 10, factionModifier: "national" },
-            { text: "Pass a sweeping agricultural subsidy plan to lower farming overheads?", popChange: 15, cashChange: -200, netIncomeChange: -30, factionModifier: "progress" },
-            { text: "Deregulate industrial environmental rules to boost mining production?", popChange: -15, cashChange: 350, netIncomeChange: 60, factionModifier: "alliance" },
-            { text: "Increase local police department budgets across all internal districts?", popChange: 5, cashChange: -100, netIncomeChange: -15, factionModifier: "national" }
+        const scenarios = [
+            { 
+                text: "Your party commands you to pass a controversial factory bill. It pollutes your home district but expands state industries.",
+                yes: { nat: 5, local: -15, standing: 15, wealth: 0, treasury: 100, log: "You followed party lines. Local voters are furious!" },
+                no: { nat: -5, local: 20, standing: -25, wealth: 0, treasury: -20, log: "You rebelled! Your constituency loves it, but the party bosses are angry." },
+                bribe: { nat: 2, local: -20, standing: 5, wealth: 8, treasury: 80, log: "You took a ₹8 Cr bribe from corporate lobbies to push it through quietly." }
+            },
+            {
+                text: "A grand housing budget scheme is proposed. Your local constituency needs development funds badly.",
+                yes: { nat: 8, local: 15, standing: 5, wealth: 0, treasury: -200, log: "The development funds arrived! Local support spiked." },
+                no: { nat: -10, local: -15, standing: 5, wealth: 0, treasury: 50, log: "You blocked the spending. Your district missed out on basic housing." },
+                bribe: { nat: 4, local: 5, standing: 5, wealth: 4, treasury: -200, log: "You passed it, but cleanly channeled ₹4 Cr of the construction fund into your offshore account." }
+            },
+            {
+                text: "A luxury lifestyle tax is introduced. Wealthy party donors want you to vote it down.",
+                yes: { nat: 15, local: 5, standing: -15, wealth: 0, treasury: 80, log: "The masses love the tax, but wealthy party leaders are alienating you." },
+                no: { nat: -12, local: -5, standing: 15, wealth: 0, treasury: 0, log: "You protected the party donors. Your standing went up." },
+                bribe: { nat: -10, local: -5, standing: 10, wealth: 6, treasury: 0, log: "A tycoon slipped you ₹6 Cr to vote NO and kill the bill dynamically." }
+            }
         ];
 
-        let selectedBill = null;
+        let activeScenario = null;
 
-        // Transitions user setup properties safely into active loops
         function startGame() {
-            playerName = document.getElementById("player-name-input").value.trim();
-            playerPartyKey = document.getElementById("player-party-select").value;
+            candidateName = document.getElementById("player-name-input").value.trim() || "Rizwan";
+            candidateParty = document.getElementById("player-party-select").value;
 
-            if(!playerName) playerName = "Leader";
+            document.getElementById("lbl-name").innerText = candidateName;
+            document.getElementById("lbl-party").innerText = candidateParty;
 
-            // Map user interface labels
-            document.getElementById("leader-display").innerText = playerName;
-            document.getElementById("leader-party-display").innerText = `${parties[playerPartyKey].symbol} ${parties[playerPartyKey].name}`;
-
-            // Reveal Game Dashboard UI panels
             document.getElementById("setup-screen").classList.add("hidden");
             document.getElementById("main-board").classList.remove("hidden");
 
             updateUI();
-            pickRandomBill();
+            nextScenario();
         }
 
-        function renderParliament() {
-            const grid = document.getElementById("parliament-grid");
-            grid.innerHTML = "";
-            
-            let seatArray = [];
-            for(let i=0; i<parties.national.seats; i++) seatArray.push(parties.national.color);
-            for(let i=0; i<parties.progress.seats; i++) seatArray.push(parties.progress.color);
-            for(let i=0; i<parties.alliance.seats; i++) seatArray.push(parties.alliance.color);
+        function nextScenario() {
+            document.getElementById("vote-actions").classList.remove("hidden");
+            document.getElementById("corrupt-container").classList.remove("hidden");
+            document.getElementById("turn-actions").classList.add("hidden");
 
-            seatArray = seatArray.slice(0, 100);
-            while(seatArray.length < 100) seatArray.push("#444");
-
-            seatArray.forEach(color => {
-                let seat = document.createElement("div");
-                seat.className = "seat";
-                let inner = document.createElement("div");
-                inner.className = "seat-inner";
-                inner.style.backgroundColor = color;
-                seat.appendChild(inner);
-                grid.appendChild(seat);
-            });
-
-            document.getElementById("lbl-nat").innerText = `National (${parties.national.seats})`;
-            document.getElementById("lbl-prog").innerText = `Progress (${parties.progress.seats})`;
-            document.getElementById("lbl-all").innerText = `Alliance (${parties.alliance.seats})`;
+            let randomIndex = Math.floor(Math.random() * scenarios.length);
+            activeScenario = scenarios[randomIndex];
+            document.getElementById("bill-text").innerText = activeScenario.text;
         }
 
-        function generateCandidate() {
-            let fName = candidateFirstNames[Math.floor(Math.random() * candidateFirstNames.length)];
-            let lName = candidateLastNames[Math.floor(Math.random() * candidateLastNames.length)];
-            let partyKeys = Object.keys(parties);
-            let randomParty = parties[partyKeys[Math.floor(Math.random() * partyKeys.length)]];
+        function handleChoice(type) {
+            let action = activeScenario[type];
 
-            document.getElementById("char-name").innerText = `${fName} ${lName}`;
-            document.getElementById("char-party").innerText = `${randomParty.symbol} ${randomParty.name}`;
-        }
+            // Apply modifications
+            nationalApproval = Math.max(0, Math.min(100, nationalApproval + action.nat));
+            localSupport = Math.max(0, Math.min(100, localSupport + action.local));
+            partyStanding = Math.max(0, Math.min(100, partyStanding + action.standing));
+            personalWealth += action.wealth;
+            stateTreasury += action.treasury;
 
-        function pickRandomBill() {
-            if (activeBillsThisYear >= maxBillsPerYear) {
-                endSession();
-                return;
-            }
-            document.getElementById("bill-title").innerText = "PROPOSED BILL";
-            let randomIndex = Math.floor(Math.random() * billDatabase.length);
-            selectedBill = billDatabase[randomIndex];
-            document.getElementById("bill-text").innerText = selectedBill.text;
-            generateCandidate();
-        }
+            document.getElementById("bill-text").innerText = action.log;
 
-        function castVote(isPassed) {
-            if (isPassed) {
-                popularity += selectedBill.popChange;
-                treasury += selectedBill.cashChange;
-                baseIncome += selectedBill.netIncomeChange;
-            }
-            
-            // NOTE: Seat counts DO NOT shift here anymore! They stay completely frozen until election year.
-            popularity = Math.max(0, Math.min(100, popularity));
-            updateUI();
-            checkGameOver();
-
-            if (popularity > 0 && treasury > 0) {
-                activeBillsThisYear++;
-                pickRandomBill();
-            }
-        }
-
-        function endSession() {
-            document.getElementById("bill-title").innerText = "SESSION CONCLUDED";
-            document.getElementById("bill-text").innerText = "Legislative items complete. Turn key available to advance calendar tracking parameters.";
+            // Hide actions until next turn loop opens
             document.getElementById("vote-actions").classList.add("hidden");
+            document.getElementById("corrupt-container").classList.add("hidden");
             document.getElementById("turn-actions").classList.remove("hidden");
+
+            updateUI();
+            checkSurvival();
         }
 
         function advanceYear() {
             currentYear++;
-            treasury += baseIncome;
-            activeBillsThisYear = 0;
-            yearsUntilElection--;
+            electionCountdown--;
+            
+            // Earn baseline legitimate politician salary directly into personal bank account
+            personalWealth += 1; 
 
-            document.getElementById("turn-actions").classList.add("hidden");
-            document.getElementById("vote-actions").classList.remove("hidden");
-
-            // ELECTION CYCLE TRIGGER CHECK
-            if (yearsUntilElection <= 0) {
-                triggerGeneralElection();
-                yearsUntilElection = 5; 
+            if (electionCountdown <= 0) {
+                runDistrictElection();
+                electionCountdown = 5;
             }
 
             updateUI();
-            checkGameOver();
-            if (popularity > 0 && treasury > 0) pickRandomBill();
+            checkSurvival();
+            if (localSupport > 0 && partyStanding > 0) {
+                nextScenario();
+            }
         }
 
-        // Simulates realistic systemic voting shifts across the whole 100 seat grid block
-        function triggerGeneralElection() {
-            alert("⚠️ GENERAL ELECTION TIME! Citizens are going to the polls to vote on your performance.");
-
-            let playerWinBonus = Math.floor((popularity - 50) / 3); 
+        function runDistrictElection() {
+            alert(`🗳️ CONSTITUENCY ELECTION YEAR ${currentYear}!\nLocal officials are auditing voter turnouts inside your district...`);
             
-            if (playerPartyKey === "progress") {
-                parties.progress.seats += playerWinBonus;
-            } else if (playerPartyKey === "national") {
-                parties.national.seats += playerWinBonus;
+            if (localSupport < 50) {
+                // Fails local threshold check
+                endGame("LOST YOUR SEAT", `You pulled only ${localSupport}% of local votes in your constituency. You lost your seat to an opposition challenger!`);
             } else {
-                parties.alliance.seats += playerWinBonus;
+                // Candidate survives, but checks if campaign funds can buy higher security margins
+                alert(`🎉 YOU WON RE-ELECTION!\nYour local support baseline of ${localSupport}% carried you through. You can use your private wealth to expand campaign structures.`);
+                localSupport = 50; // Reset support field to baseline for next 5-year sprint
             }
+        }
 
-            // Distribute remaining fractional balances dynamically to opponent systems
-            let varianceFactor = Math.floor(Math.random() * 6) - 3;
-            parties.national.seats += varianceFactor;
-            parties.alliance.seats -= varianceFactor;
-
-            // Enforce hard ceiling controls
-            parties.progress.seats = Math.max(10, Math.min(70, parties.progress.seats));
-            parties.national.seats = Math.max(10, Math.min(70, parties.national.seats));
-            parties.alliance.seats = Math.max(10, Math.min(70, parties.alliance.seats));
-            
-            // Re-lock alignment matrix back cleanly to 100 total points
-            parties.national.seats = 100 - (parties.progress.seats + parties.alliance.seats);
-
-            alert(`🗳️ ELECTION COMPLETE!\nNew Power Balance:\n🚩 National: ${parties.national.seats}\n☀️ Progress: ${parties.progress.seats}\n💼 Alliance: ${parties.alliance.seats}\n\nCheck if your coalition maintains control!`);
+        function checkSurvival() {
+            if (partyStanding <= 15) {
+                endGame("EXPELLED FROM PARTY", "Your party leadership grew tired of your constant voting defiance. They cancelled your membership ticket!");
+            } else if (stateTreasury <= 0) {
+                endGame("STATE IMPLOSION", "The broader state treasury went bankrupt. Total structural default.");
+            }
         }
 
         function updateUI() {
             document.getElementById("year").innerText = currentYear;
-            document.getElementById("pop").innerText = popularity;
-            document.getElementById("cash").innerText = treasury;
-            document.getElementById("election-countdown").innerText = yearsUntilElection;
-            
-            let netElement = document.getElementById("income");
-            netElement.innerText = (baseIncome >= 0 ? "+" : "") + baseIncome;
-            netElement.style.color = baseIncome >= 0 ? "#4caf50" : "#f44336";
-            renderParliament();
+            document.getElementById("countdown").innerText = electionCountdown;
+            document.getElementById("nat-pop").innerText = nationalApproval;
+            document.getElementById("treasury").innerText = stateTreasury;
+
+            document.getElementById("lbl-local").innerText = localSupport;
+            document.getElementById("lbl-standing").innerText = partyStanding;
+            document.getElementById("lbl-wealth").innerText = personalWealth;
         }
 
-        function checkGameOver() {
-            if (popularity <= 0 || treasury <= 0) {
-                document.getElementById("game-container").innerHTML = `<h2>GAME OVER</h2><button onclick="window.location.reload()" style="background-color: #8b5a2b; margin-top:15px; width:100%;">START REVOLUTION AGAIN</button>`;
-            }
+        function endGame(title, text) {
+            document.getElementById("game-container").innerHTML = `
+                <h2 style="color: #c62828;">${title}</h2>
+                <div style='background-color:#22140c; padding:15px; border-radius:5px; margin-bottom:15px; text-align:center;'>
+                    <p>${text}</p>
+                    <p style='color:#ffeb3b;'>Final Private Fortune: ₹${personalWealth} Cr</p>
+                </div>
+                <button onclick="window.location.reload()" style="background-color: #8b5a2b; width:100%;">START A NEW CAREER</button>
+            `;
         }
     </script>
 </body>
