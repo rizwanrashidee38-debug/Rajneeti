@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rajneeti: Parliament Edition</title>
+    <title>Rajneeti: Election Cycle Edition</title>
     <style>
         body {
             background-color: #2b1f1d;
@@ -31,6 +31,25 @@
             text-align: center;
             margin: 5px 0;
         }
+        .setup-input {
+            width: 100%;
+            padding: 10px;
+            background-color: #1a110b;
+            border: 1px solid #8b5a2b;
+            color: #f4ecd8;
+            font-family: inherit;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        .setup-select {
+            width: 100%;
+            padding: 10px;
+            background-color: #1a110b;
+            border: 1px solid #8b5a2b;
+            color: #f4ecd8;
+            font-family: inherit;
+            margin-bottom: 20px;
+        }
         .stats-box {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -44,14 +63,6 @@
             font-weight: bold;
             font-size: 0.95rem;
             text-align: center;
-        }
-        
-        /* PARLIAMENT VISUAL GRID */
-        .parliament-header {
-            text-align: center;
-            font-size: 0.85rem;
-            margin-bottom: 4px;
-            color: #bfa38a;
         }
         #parliament-grid {
             display: grid;
@@ -73,8 +84,6 @@
             top: 0; left: 0; right: 0; bottom: 0;
             border-radius: 3px;
         }
-
-        /* PARTY LEGEND SYMBOLS */
         .party-legend {
             display: flex;
             justify-content: space-around;
@@ -89,8 +98,6 @@
             align-items: center;
             gap: 5px;
         }
-
-        /* POLITICIAN PROFILE DOSSIER */
         #profile-box {
             background-color: #22140c;
             border: 1px dashed #d4af37;
@@ -100,7 +107,6 @@
             font-size: 0.85rem;
             line-height: 1.4;
         }
-
         #bill-box {
             background-color: #4a3525;
             padding: 12px;
@@ -126,6 +132,7 @@
             font-weight: bold;
             font-size: 0.95rem;
             cursor: pointer;
+            font-family: inherit;
         }
         .hidden { display: none !important; }
     </style>
@@ -133,56 +140,79 @@
 <body>
 
     <div id="game-container">
-        <h2>RAJNEETI SIMULATOR</h2>
-        
-        <div class="stats-box">
-            <div class="stat">Year: <span id="year" style="color: #ff9800;">2026</span></div>
-            <div class="stat">Approval: <span id="pop" style="color: #4caf50;">50</span>%</div>
-            <div class="stat" style="grid-column: span 2;">Treasury: ₹<span id="cash" style="color: #ffeb3b;">1000</span> Cr (Net: <span id="income">+100</span>/yr)</div>
+        <div id="setup-screen">
+            <h2>NEW POLITICAL CAMPAIGN</h2>
+            <hr style="border: 1px solid #5c3a1a; margin-bottom: 20px;">
+            <label>ENTER YOUR LEADER NAME:</label>
+            <input type="text" id="player-name-input" class="setup-input" placeholder="e.g. Rahul Sharma" value="Rizwan">
+            
+            <label>CHOOSE YOUR ALIGNED PARTY FACTION:</label>
+            <select id="player-party-select" class="setup-select">
+                <option value="national">🚩 Nationalist Front</option>
+                <option value="progress">☀️ Progressive Party</option>
+                <option value="alliance">💼 Business Alliance</option>
+            </select>
+            
+            <button onclick="startGame()" style="background-color: #ff9800; color: #1a110b; font-size: 1.1rem; padding: 15px;">FOUND GOVERNMENT 🏛️</button>
         </div>
 
-        <div class="parliament-header">PARLIAMENT SEAT ALLOCATION (100 TOTAL)</div>
-        <div id="parliament-grid"></div>
+        <div id="main-board" class="hidden">
+            <h2>RAJNEETI SIMULATOR</h2>
+            
+            <div class="stats-box">
+                <div class="stat">Year: <span id="year" style="color: #ff9800;">2026</span></div>
+                <div class="stat">Approval: <span id="pop" style="color: #4caf50;">50</span>%</div>
+                <div class="stat" style="grid-column: span 2;">Treasury: ₹<span id="cash" style="color: #ffeb3b;">1000</span> Cr (Net: <span id="income">+100</span>/yr)</div>
+                <div class="stat" style="grid-column: span 2; background-color: #110a06; padding: 4px; border-radius: 3px; font-size: 0.8rem;">
+                    ELECTION IN: <span id="election-countdown" style="color: #ff5722; font-weight: bold;">5</span> YEARS
+                </div>
+            </div>
 
-        <div class="party-legend">
-            <div class="legend-item"><span style="color:#ff3333;">🚩</span> <span id="lbl-nat">National (45)</span></div>
-            <div class="legend-item"><span style="color:#3388ff;">☀️</span> <span id="lbl-prog">Progress (35)</span></div>
-            <div class="legend-item"><span style="color:#33cc33;">💼</span> <span id="lbl-all">Alliance (20)</span></div>
-        </div>
+            <div class="parliament-header">PARLIAMENT SEAT ALLOCATION (100 TOTAL)</div>
+            <div id="parliament-grid"></div>
 
-        <h3>CURRENT BILL SPONSOR</h3>
-        <div id="profile-box">
-            <strong>Name:</strong> <span id="char-name">---</span><br>
-            <strong>Party Faction:</strong> <span id="char-party">---</span><br>
-            <strong>Loyalty Score:</strong> <span id="char-loyalty">0</span>/100 | 
-            <strong>Corruption Index:</strong> <span id="char-corrupt">0</span>%
-        </div>
+            <div class="party-legend">
+                <div class="legend-item"><span style="color:#ff3333;">🚩</span> <span id="lbl-nat">National (45)</span></div>
+                <div class="legend-item"><span style="color:#3388ff;">☀️</span> <span id="lbl-prog">Progress (35)</span></div>
+                <div class="legend-item"><span style="color:#33cc33;">💼</span> <span id="lbl-all">Alliance (20)</span></div>
+            </div>
 
-        <div id="bill-box">
-            <h3 id="bill-title">PROPOSED BILL</h3>
-            <p id="bill-text">Loading agenda...</p>
-        </div>
+            <h3>YOUR LEADER BRIEFING</h3>
+            <div id="profile-box">
+                <strong>Leader Name:</strong> <span id="leader-display" style="color:#d4af37;">---</span><br>
+                <strong>Affiliated Party:</strong> <span id="leader-party-display">---</span><br>
+                <strong>Next Bill Sponsor:</strong> <span id="char-name">---</span> (<span id="char-party">---</span>)
+            </div>
 
-        <div class="btn-container" id="vote-actions">
-            <button onclick="castVote(true)" style="background-color: #2e7d32;">PASS LAW</button>
-            <button onclick="castVote(false)" style="background-color: #c62828;">REJECT</button>
-        </div>
+            <div id="bill-box">
+                <h3 id="bill-title">PROPOSED BILL</h3>
+                <p id="bill-text">Loading agenda...</p>
+            </div>
 
-        <div class="btn-container hidden" id="turn-actions">
-            <button onclick="advanceYear()" style="background-color: #ff9800; color: #1a110b;">ADVANCE TO NEXT YEAR ⏳</button>
+            <div class="btn-container" id="vote-actions">
+                <button onclick="castVote(true)" style="background-color: #2e7d32;">PASS LAW</button>
+                <button onclick="castVote(false)" style="background-color: #c62828;">REJECT</button>
+            </div>
+
+            <div class="btn-container hidden" id="turn-actions">
+                <button onclick="advanceYear()" style="background-color: #ff9800; color: #1a110b;">ADVANCE TO NEXT YEAR ⏳</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Game Logic Data
+        // Game Core Metrics
         let currentYear = 2026;
         let popularity = 50;
         let treasury = 1000;
         let baseIncome = 100;
         let activeBillsThisYear = 0;
         const maxBillsPerYear = 3;
+        let yearsUntilElection = 5;
 
-        // Party setup database
+        let playerName = "";
+        let playerPartyKey = "";
+
         const parties = {
             national: { color: "#ff3333", seats: 45, name: "Nationalist Front", symbol: "🚩" },
             progress: { color: "#3388ff", seats: 35, name: "Progressive Party", symbol: "☀️" },
@@ -193,17 +223,35 @@
         const candidateLastNames = ["Sharma", "Verma", "Patel", "Singh", "Joshi", "Reddy", "Mehta", "Das", "Nair", "Kapoor"];
 
         const billDatabase = [
-            { text: "Increase corporate tax on Business Alliance corporations to fill state funds?", popChange: 10, cashChange: 200, netIncomeChange: 40, targetParty: "alliance", dynamicSeatShift: -3 },
-            { text: "Fund a major urban green infrastructure transportation layout?", popChange: 15, cashChange: -300, netIncomeChange: -20, targetParty: "progress", dynamicSeatShift: 4 },
-            { text: "Impose strict state cybersecurity monitoring laws championed by Nationalists?", popChange: -10, cashChange: -50, netIncomeChange: 10, targetParty: "national", dynamicSeatShift: 3 },
-            { text: "Pass a sweeping agricultural subsidy plan to lower farming overheads?", popChange: 15, cashChange: -200, netIncomeChange: -30, targetParty: "progress", dynamicSeatShift: 2 },
-            { text: "Deregulate industrial environmental rules to boost mining production?", popChange: -15, cashChange: 350, netIncomeChange: 60, targetParty: "alliance", dynamicSeatShift: 4 },
-            { text: "Increase local police department budgets across all internal districts?", popChange: 5, cashChange: -100, netIncomeChange: -15, targetParty: "national", dynamicSeatShift: 2 }
+            { text: "Increase corporate tax on Business Alliance corporations to fill state funds?", popChange: 12, cashChange: 200, netIncomeChange: 40, factionModifier: "alliance" },
+            { text: "Fund a major urban green infrastructure transportation layout?", popChange: 15, cashChange: -300, netIncomeChange: -20, factionModifier: "progress" },
+            { text: "Impose strict state cybersecurity monitoring laws championed by Nationalists?", popChange: -10, cashChange: -50, netIncomeChange: 10, factionModifier: "national" },
+            { text: "Pass a sweeping agricultural subsidy plan to lower farming overheads?", popChange: 15, cashChange: -200, netIncomeChange: -30, factionModifier: "progress" },
+            { text: "Deregulate industrial environmental rules to boost mining production?", popChange: -15, cashChange: 350, netIncomeChange: 60, factionModifier: "alliance" },
+            { text: "Increase local police department budgets across all internal districts?", popChange: 5, cashChange: -100, netIncomeChange: -15, factionModifier: "national" }
         ];
 
         let selectedBill = null;
 
-        // Render the 100 seats visual grid block
+        // Transitions user setup properties safely into active loops
+        function startGame() {
+            playerName = document.getElementById("player-name-input").value.trim();
+            playerPartyKey = document.getElementById("player-party-select").value;
+
+            if(!playerName) playerName = "Leader";
+
+            // Map user interface labels
+            document.getElementById("leader-display").innerText = playerName;
+            document.getElementById("leader-party-display").innerText = `${parties[playerPartyKey].symbol} ${parties[playerPartyKey].name}`;
+
+            // Reveal Game Dashboard UI panels
+            document.getElementById("setup-screen").classList.add("hidden");
+            document.getElementById("main-board").classList.remove("hidden");
+
+            updateUI();
+            pickRandomBill();
+        }
+
         function renderParliament() {
             const grid = document.getElementById("parliament-grid");
             grid.innerHTML = "";
@@ -213,11 +261,8 @@
             for(let i=0; i<parties.progress.seats; i++) seatArray.push(parties.progress.color);
             for(let i=0; i<parties.alliance.seats; i++) seatArray.push(parties.alliance.color);
 
-            // Dynamically ensure it stops cleanly at 100 boxes if math fragments
             seatArray = seatArray.slice(0, 100);
-            while(seatArray.length < 100) {
-                seatArray.push("#444");
-            }
+            while(seatArray.length < 100) seatArray.push("#444");
 
             seatArray.forEach(color => {
                 let seat = document.createElement("div");
@@ -229,13 +274,11 @@
                 grid.appendChild(seat);
             });
 
-            // Update Labels
             document.getElementById("lbl-nat").innerText = `National (${parties.national.seats})`;
             document.getElementById("lbl-prog").innerText = `Progress (${parties.progress.seats})`;
             document.getElementById("lbl-all").innerText = `Alliance (${parties.alliance.seats})`;
         }
 
-        // Generate a random dynamic politician profile card
         function generateCandidate() {
             let fName = candidateFirstNames[Math.floor(Math.random() * candidateFirstNames.length)];
             let lName = candidateLastNames[Math.floor(Math.random() * candidateLastNames.length)];
@@ -244,8 +287,6 @@
 
             document.getElementById("char-name").innerText = `${fName} ${lName}`;
             document.getElementById("char-party").innerText = `${randomParty.symbol} ${randomParty.name}`;
-            document.getElementById("char-loyalty").innerText = Math.floor(Math.random() * 40) + 60;
-            document.getElementById("char-corrupt").innerText = Math.floor(Math.random() * 85);
         }
 
         function pickRandomBill() {
@@ -265,34 +306,9 @@
                 popularity += selectedBill.popChange;
                 treasury += selectedBill.cashChange;
                 baseIncome += selectedBill.netIncomeChange;
-                
-                // Seat shift math logic
-                let shift = selectedBill.dynamicSeatShift;
-                let party = selectedBill.targetParty;
-
-                if (party === "progress") {
-                    parties.progress.seats += shift;
-                    parties.national.seats -= Math.floor(shift/2);
-                    parties.alliance.seats -= Math.ceil(shift/2);
-                } else if (party === "national") {
-                    parties.national.seats += shift;
-                    parties.progress.seats -= Math.floor(shift/2);
-                    parties.alliance.seats -= Math.ceil(shift/2);
-                } else if (party === "alliance") {
-                    parties.alliance.seats += shift;
-                    parties.progress.seats -= Math.floor(shift/2);
-                    parties.national.seats -= Math.ceil(shift/2);
-                }
-
-                // Balance scales to prevent negative party volumes
-                parties.progress.seats = Math.max(5, parties.progress.seats);
-                parties.national.seats = Math.max(5, parties.national.seats);
-                parties.alliance.seats = Math.max(5, parties.alliance.seats);
-                
-                // Lock total sum back to 100 seats exactly
-                parties.national.seats = 100 - (parties.progress.seats + parties.alliance.seats);
             }
             
+            // NOTE: Seat counts DO NOT shift here anymore! They stay completely frozen until election year.
             popularity = Math.max(0, Math.min(100, popularity));
             updateUI();
             checkGameOver();
@@ -305,7 +321,7 @@
 
         function endSession() {
             document.getElementById("bill-title").innerText = "SESSION CONCLUDED";
-            document.getElementById("bill-text").innerText = "All architectural laws for this operational window successfully reviewed.";
+            document.getElementById("bill-text").innerText = "Legislative items complete. Turn key available to advance calendar tracking parameters.";
             document.getElementById("vote-actions").classList.add("hidden");
             document.getElementById("turn-actions").classList.remove("hidden");
         }
@@ -314,17 +330,58 @@
             currentYear++;
             treasury += baseIncome;
             activeBillsThisYear = 0;
+            yearsUntilElection--;
+
             document.getElementById("turn-actions").classList.add("hidden");
             document.getElementById("vote-actions").classList.remove("hidden");
+
+            // ELECTION CYCLE TRIGGER CHECK
+            if (yearsUntilElection <= 0) {
+                triggerGeneralElection();
+                yearsUntilElection = 5; 
+            }
+
             updateUI();
             checkGameOver();
             if (popularity > 0 && treasury > 0) pickRandomBill();
+        }
+
+        // Simulates realistic systemic voting shifts across the whole 100 seat grid block
+        function triggerGeneralElection() {
+            alert("⚠️ GENERAL ELECTION TIME! Citizens are going to the polls to vote on your performance.");
+
+            let playerWinBonus = Math.floor((popularity - 50) / 3); 
+            
+            if (playerPartyKey === "progress") {
+                parties.progress.seats += playerWinBonus;
+            } else if (playerPartyKey === "national") {
+                parties.national.seats += playerWinBonus;
+            } else {
+                parties.alliance.seats += playerWinBonus;
+            }
+
+            // Distribute remaining fractional balances dynamically to opponent systems
+            let varianceFactor = Math.floor(Math.random() * 6) - 3;
+            parties.national.seats += varianceFactor;
+            parties.alliance.seats -= varianceFactor;
+
+            // Enforce hard ceiling controls
+            parties.progress.seats = Math.max(10, Math.min(70, parties.progress.seats));
+            parties.national.seats = Math.max(10, Math.min(70, parties.national.seats));
+            parties.alliance.seats = Math.max(10, Math.min(70, parties.alliance.seats));
+            
+            // Re-lock alignment matrix back cleanly to 100 total points
+            parties.national.seats = 100 - (parties.progress.seats + parties.alliance.seats);
+
+            alert(`🗳️ ELECTION COMPLETE!\nNew Power Balance:\n🚩 National: ${parties.national.seats}\n☀️ Progress: ${parties.progress.seats}\n💼 Alliance: ${parties.alliance.seats}\n\nCheck if your coalition maintains control!`);
         }
 
         function updateUI() {
             document.getElementById("year").innerText = currentYear;
             document.getElementById("pop").innerText = popularity;
             document.getElementById("cash").innerText = treasury;
+            document.getElementById("election-countdown").innerText = yearsUntilElection;
+            
             let netElement = document.getElementById("income");
             netElement.innerText = (baseIncome >= 0 ? "+" : "") + baseIncome;
             netElement.style.color = baseIncome >= 0 ? "#4caf50" : "#f44336";
@@ -333,13 +390,9 @@
 
         function checkGameOver() {
             if (popularity <= 0 || treasury <= 0) {
-                document.getElementById("game-container").innerHTML = `<h2>GAME OVER</h2><button onclick="window.location.reload()" style="background-color: #8b5a2b; margin-top:15px; width:100%;">RETRY</button>`;
+                document.getElementById("game-container").innerHTML = `<h2>GAME OVER</h2><button onclick="window.location.reload()" style="background-color: #8b5a2b; margin-top:15px; width:100%;">START REVOLUTION AGAIN</button>`;
             }
         }
-
-        // Bootup
-        updateUI();
-        pickRandomBill();
     </script>
 </body>
 </html>
