@@ -1,15 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rajneeti: Political Simulator</title>
+    <title>Rajneeti: Political Simulator Pro</title>
     <style>
         body {
             background-color: #2b1f1d;
             color: #f4ecd8;
             font-family: 'Courier New', Courier, monospace;
-            padding: 20px;
+            padding: 15px;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -26,18 +27,21 @@
         h2, h3 {
             color: #d4af37;
             text-align: center;
+            margin-top: 5px;
         }
         .stats-box {
-            display: flex;
-            justify-content: space-around;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
             background-color: #1a110b;
-            padding: 10px;
+            padding: 12px;
             border-radius: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .stat {
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            text-align: center;
         }
         #bill-box {
             background-color: #4a3525;
@@ -45,8 +49,11 @@
             border-radius: 5px;
             border: 1px solid #8b5a2b;
             text-align: center;
-            margin-bottom: 25px;
-            min-height: 80px;
+            margin-bottom: 20px;
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .btn-container {
             display: flex;
@@ -54,8 +61,7 @@
         }
         button {
             flex: 1;
-            padding: 12px;
-            background-color: #8b5a2b;
+            padding: 14px;
             color: white;
             border: none;
             border-radius: 4px;
@@ -64,13 +70,19 @@
             cursor: pointer;
         }
         button:active {
-            background-color: #5c3a1a;
+            transform: scale(0.98);
         }
         #log-text {
             font-style: italic;
             color: #bfa38a;
             text-align: center;
             min-height: 40px;
+            background: #1a110b;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -80,77 +92,150 @@
         <h2>RAJNEETI SIMULATOR</h2>
         
         <div class="stats-box">
+            <div class="stat">Year: <span id="year" style="color: #ff9800;">2026</span></div>
             <div class="stat">Approval: <span id="pop" style="color: #4caf50;">50</span>%</div>
-            <div class="stat">Funds: ₹<span id="cash" style="color: #ffeb3b;">1000</span> Cr</div>
+            <div class="stat" style="grid-column: span 2;">Treasury: ₹<span id="cash" style="color: #ffeb3b;">1000</span> Cr (Net: <span id="income">+0</span>/yr)</div>
         </div>
 
         <div id="bill-box">
-            <h3>PROPOSED BILL</h3>
-            <p id="bill-text">Loading political bills...</p>
+            <h3 id="bill-title">PROPOSED BILL</h3>
+            <p id="bill-text">Loading...</p>
         </div>
 
-        <div class="btn-container">
+        <div class="btn-container" id="vote-actions">
             <button onclick="castVote(true)" style="background-color: #2e7d32;">PASS LAW</button>
             <button onclick="castVote(false)" style="background-color: #c62828;">REJECT</button>
         </div>
 
+        <div class="btn-container hidden" id="turn-actions">
+            <button onclick="advanceYear()" style="background-color: #ff9800; color: #1a110b;">ADVANCE TO NEXT YEAR ⏳</button>
+        </div>
+
         <hr style="border: 1px solid #5c3a1a; margin-top: 20px;">
-        <p id="log-text">Welcome, Leader. Build your empire.</p>
+        <p id="log-text">Welcome, Leader. Prepare for your parliamentary session.</p>
     </div>
 
     <script>
+        // --- GAME SYSTEM DATA ---
+        let currentYear = 2026;
         let popularity = 50;
         let treasury = 1000;
-        let currentBillIndex = 0;
+        let baseIncome = 100; // Standard annual tax baseline
+        let activeBillsThisYear = 0;
+        const maxBillsPerYear = 3; // Number of laws presented each year
 
-        const bills = [
-            { text: "Increase corporate tax on major tech businesses to boost national funds?", popChange: -10, cashChange: 400 },
-            { text: "Introduce a nationwide free universal healthcare scheme?", popChange: 20, cashChange: -500 },
-            { text: "Legalize and heavily tax mobile sports betting and gaming apps?", popChange: 5, cashChange: 200 },
-            { text: "Reduce defense and military spending to reallocate budget?", popChange: -15, cashChange: 300 },
-            { text: "Launch a massive nationwide highway and infrastructure upgrading project?", popChange: 15, cashChange: -400 }
+        // Master Database of Political Actions
+        const billDatabase = [
+            { text: "Implement high corporate tax on mega-corporations?", popChange: -10, cashChange: 300, netIncomeChange: 80 },
+            { text: "Launch full free universal healthcare across all states?", popChange: 20, cashChange: -400, netIncomeChange: -120 },
+            { text: "Legalize and heavily tax mobile sports betting and casino apps?", popChange: 5, cashChange: 150, netIncomeChange: 40 },
+            { text: "Slash military and defense spending budgets?", popChange: -15, cashChange: 200, netIncomeChange: 50 },
+            { text: "Fund a massive nationwide green solar power infrastructure grid?", popChange: 12, cashChange: -350, netIncomeChange: -30 },
+            { text: "Impose a luxury goods tax on expensive cars and private jewelry?", popChange: 8, cashChange: 100, netIncomeChange: 25 },
+            { text: "Subsidize local farmers and clear agrarian debt?", popChange: 18, cashChange: -250, netIncomeChange: -40 },
+            { text: "Enforce strict internet regulation and social media censorship?", popChange: -22, cashChange: 0, netIncomeChange: 10 },
+            { text: "Legalize commercial logging and extraction in wildlife reserves?", popChange: -18, cashChange: 250, netIncomeChange: 60 },
+            { text: "Establish a mandatory uniform digital identity card for citizens?", popChange: -5, cashChange: -80, netIncomeChange: -10 }
         ];
 
-        function displayBill() {
-            if (currentBillIndex < bills.length) {
-                document.getElementById("bill-text").innerText = bills[currentBillIndex].text;
-            } else {
-                document.getElementById("bill-box").innerHTML = "<h3>Session Complete</h3><p>You successfully managed all parliamentary bills for this term!</p>";
-                document.querySelector(".btn-container").style.display = "none";
+        let selectedBill = null;
+
+        // --- GAME SYSTEM LOGIC ---
+
+        function pickRandomBill() {
+            if (activeBillsThisYear >= maxBillsPerYear) {
+                endSession();
+                return;
             }
+            
+            document.getElementById("bill-title").innerText = "PROPOSED BILL";
+            let randomIndex = Math.floor(Math.random() * billDatabase.length);
+            selectedBill = billDatabase[randomIndex];
+            document.getElementById("bill-text").innerText = selectedBill.text;
         }
 
         function castVote(isPassed) {
-            let currentBill = bills[currentBillIndex];
-            
             if (isPassed) {
-                popularity += currentBill.popChange;
-                treasury += currentBill.cashChange;
-                document.getElementById("log-text").innerText = "Bill passed into law.";
+                popularity += selectedBill.popChange;
+                treasury += selectedBill.cashChange;
+                baseIncome += selectedBill.netIncomeChange;
+                document.getElementById("log-text").innerText = "Bill enacted. Your annual income projections shifted.";
             } else {
-                document.getElementById("log-text").innerText = "You rejected/vetoed the bill.";
+                document.getElementById("log-text").innerText = "Bill completely rejected by the executive branch.";
             }
 
-            if (popularity > 100) popularity = 100;
-            if (popularity < 0) popularity = 0;
+            // Clamping popularity scales
+            popularity = Math.max(0, Math.min(100, popularity));
 
-            document.getElementById("pop").innerText = popularity;
-            document.getElementById("cash").innerText = treasury;
+            updateUI();
+            checkGameOver();
 
-            if (popularity <= 0) {
-                document.getElementById("game-container").innerHTML = "<h2>GAME OVER</h2><p style='text-align:center;'>You were ousted from power with a 0% approval rating!</p>";
-                return;
+            if (popularity > 0 && treasury > 0) {
+                activeBillsThisYear++;
+                pickRandomBill();
             }
-            if (treasury <= 0) {
-                document.getElementById("game-container").innerHTML = "<h2>GAME OVER</h2><p style='text-align:center;'>The government went entirely bankrupt!</p>";
-                return;
-            }
-
-            currentBillIndex++;
-            displayBill();
         }
 
-        displayBill();
+        function endSession() {
+            document.getElementById("bill-title").innerText = "SESSION CONCLUDED";
+            document.getElementById("bill-text").innerText = `You processed all legislation for ${currentYear}. Review your financial adjustments and advance.`;
+            
+            // Toggle view panels
+            document.getElementById("vote-actions").classList.add("hidden");
+            document.getElementById("turn-actions").classList.remove("hidden");
+        }
+
+        function advanceYear() {
+            currentYear++;
+            treasury += baseIncome; // Add annual revenue to budget
+            activeBillsThisYear = 0;
+
+            document.getElementById("log-text").innerText = `Welcome to fiscal year ${currentYear}. Treasury collected annual balances.`;
+
+            // Toggle UI panels back
+            document.getElementById("turn-actions").classList.add("hidden");
+            document.getElementById("vote-actions").classList.remove("hidden");
+
+            updateUI();
+            checkGameOver();
+            
+            if (popularity > 0 && treasury > 0) {
+                pickRandomBill();
+            }
+        }
+
+        function updateUI() {
+            document.getElementById("year").innerText = currentYear;
+            document.getElementById("pop").innerText = popularity;
+            document.getElementById("cash").innerText = treasury;
+            
+            let netElement = document.getElementById("income");
+            netElement.innerText = (baseIncome >= 0 ? "+" : "") + baseIncome;
+            netElement.style.color = baseIncome >= 0 ? "#4caf50" : "#f44336";
+        }
+
+        function checkGameOver() {
+            if (popularity <= 0) {
+                endGame("COUP D'ÉTAT", "Your approval rating reached 0%. Mass protests erupted and you were forced out of office.");
+            } else if (treasury <= 0) {
+                endGame("ECONOMIC COLLAPSE", "The country's treasury plummeted below zero. Your government completely defaulted.");
+            }
+        }
+
+        function endGame(title, text) {
+            document.getElementById("game-container").innerHTML = `
+                <h2 style="color: #c62828;">${title}</h2>
+                <div id='bill-box' style='background-color:#2a1a1a;'>
+                    <p style='text-align:center;'>${text}</p>
+                </div>
+                <button onclick="window.location.reload()" style="background-color: #8b5a2b; margin-top:15px; width:100%;">START REVOLUTION AGAIN</button>
+            `;
+        }
+
+        // Bootup Execution
+        updateUI();
+        pickRandomBill();
     </script>
 </body>
 </html>
+
