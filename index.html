@@ -1,9 +1,5 @@
 
-            
-
-            
-            
-<!DOCTYPE html>
+     <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -74,7 +70,7 @@
             border: 1px solid #8b5a2b;
             text-align: center;
             margin-bottom: 15px;
-            min-height: 100px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -109,16 +105,16 @@
             
             <label>JOIN A POLITICAL PARTY:</label>
             <select id="player-party-select" class="setup-select">
-                <option value="BJP">🌻 Nationalist Front</option>
-                <option value="Congress">✋🏻Progressive Party</option>
-                <option value="AAP">🧹 Business Alliance</option>
+                <option value="BJP">🌻 Nationalist Front (BJP)</option>
+                <option value="Congress">✋🏻 Progressive Party (INC)</option>
+                <option value="AAP">🧹 Common Man Alliance (AAP)</option>
             </select>
             
             <button onclick="startGame()" style="background-color: #ff9800; color: #1a110b; font-size: 1.1rem;">LAUNCH CAMPAIGN 📄</button>
         </div>
 
         <div id="main-board" class="hidden">
-            <h2>POLITICAL CAREER Dashboard</h2>
+            <h2>POLITICAL CAREER DASHBOARD</h2>
             
             <div class="stats-box">
                 <div class="stat">Year: <span id="year" style="color: #ff9800;">2026</span></div>
@@ -162,37 +158,48 @@
     </div>
 
     <script>
-        // System variables
         let currentYear = 2026;
         let electionCountdown = 5;
         let nationalApproval = 50;
         let stateTreasury = 1000;
 
-        // Candidate private variables
         let candidateName = "";
         let candidateParty = "";
-        let localSupport = 55;      // Vital for winning your specific seat
-        let partyStanding = 70;     // Vital for not getting fired by the party
-        let personalWealth = 5;     // Money you keep personally
+        let localSupport = 55;      
+        let partyStanding = 70;     
+        let personalWealth = 5;     
 
+        // MASSIVELY EXPANDED REALISTIC SCENARIO POOL
         const scenarios = [
             { 
-                text: "Your party commands you to pass a controversial factory bill. It pollutes your home district but expands state industries.",
-                yes: { nat: 5, local: -15, standing: 15, wealth: 0, treasury: 100, log: "You followed party lines. Local voters are furious!" },
-                no: { nat: -5, local: 20, standing: -25, wealth: 0, treasury: -20, log: "You rebelled! Your constituency loves it, but the party bosses are angry." },
-                bribe: { nat: 2, local: -20, standing: 5, wealth: 8, treasury: 80, log: "You took a ₹8 Cr bribe from corporate lobbies to push it through quietly." }
+                text: "Your party high command orders you to support an aggressive land acquisition bill. It overrides local farmers' rights in your district to make room for a mega highway project.",
+                yes: { nat: 8, local: -18, standing: 15, wealth: 0, treasury: 150, log: "You loyally obeyed the party whip. Your party standing soared, but farmers back home are burning effigies of you." },
+                no: { nat: -4, local: 22, standing: -25, wealth: 0, treasury: -40, log: "You stood with your local farmers! Your constituency baseline skyrocketed, but party high command issued a warning notice." },
+                bribe: { nat: 2, local: -22, standing: 5, wealth: 10, treasury: 120, log: "The infrastructure developer secretly wired ₹10 Cr to your fund. You voted YES and suppressed local news coverage." }
             },
             {
-                text: "A grand housing budget scheme is proposed. Your local constituency needs development funds badly.",
-                yes: { nat: 8, local: 15, standing: 5, wealth: 0, treasury: -200, log: "The development funds arrived! Local support spiked." },
-                no: { nat: -10, local: -15, standing: 5, wealth: 0, treasury: 50, log: "You blocked the spending. Your district missed out on basic housing." },
-                bribe: { nat: 4, local: 5, standing: 5, wealth: 4, treasury: -200, log: "You passed it, but cleanly channeled ₹4 Cr of the construction fund into your offshore account." }
+                text: "A massive state welfare housing fund allocation is up for parliamentary distribution. Your constituency badly requires localized development grants.",
+                yes: { nat: 5, local: 15, standing: 5, wealth: 0, treasury: -200, log: "Legitimate development funds cleared! New colony housing projects are winning you vast local praise." },
+                no: { nat: -8, local: -15, standing: 5, wealth: 0, treasury: 50, log: "You blocked the welfare bill to cut state debts. Local residents feel abandoned by their own MLA." },
+                bribe: { nat: 2, local: 8, standing: 5, wealth: 5, treasury: -200, log: "You passed the bill but safely extracted ₹5 Cr from the construction contract through a shell supplier firm." }
             },
             {
-                text: "A luxury lifestyle tax is introduced. Wealthy party donors want you to vote it down.",
-                yes: { nat: 15, local: 5, standing: -15, wealth: 0, treasury: 80, log: "The masses love the tax, but wealthy party leaders are alienating you." },
-                no: { nat: -12, local: -5, standing: 15, wealth: 0, treasury: 0, log: "You protected the party donors. Your standing went up." },
-                bribe: { nat: -10, local: -5, standing: 10, wealth: 6, treasury: 0, log: "A tycoon slipped you ₹6 Cr to vote NO and kill the bill dynamically." }
+                text: "A luxury lifestyle tax is introduced. High-profile industrialists who heavily fund your party's election campaigns demand that you vote it down.",
+                yes: { nat: 15, local: 5, standing: -20, wealth: 0, treasury: 90, log: "The working class cheers your bold stand, but your party's senior treasurers are furious that you alienated core donors." },
+                no: { nat: -10, local: -8, standing: 18, wealth: 0, treasury: 0, log: "You successfully blocked the tax. Party elites praised your pragmatism and guaranteed your future ticket security." },
+                bribe: { nat: -12, local: -5, standing: 12, wealth: 7, treasury: 0, log: "An elite corporation slipped you ₹7 Cr in cash to file technical layout objections and stall the bill indefinitely." }
+            },
+            {
+                text: "An independent investigative media channel catches you on tape using government vehicles for a lavish private family function, triggering a viral social media scandal.",
+                yes: { nat: -8, local: -10, standing: -10, wealth: 0, treasury: 0, log: "You issued a public apology. The press hammered your lack of ethics, damaging both personal and party metrics." },
+                no: { nat: -5, local: -5, standing: 5, wealth: -2, treasury: 0, log: "You used ₹2 Cr of your private wealth to aggressively counter-sue the journalists. The party appreciated you fighting back." },
+                bribe: { nat: 4, local: 4, standing: -5, wealth: -4, treasury: 0, log: "You used ₹4 Cr to completely buy out the regional news network. The tape vanished, and fake positive articles replaced it." }
+            },
+            {
+                text: "A legislative proposal is submitted to mandate a strict annual asset declaration for all active politicians, rendering private balance sheets public record.",
+                yes: { nat: 20, local: 10, standing: -15, wealth: 0, treasury: -10, log: "Transparency triumphs! The public loves it, but colleagues across party lines now view you as a dangerous threat." },
+                no: { nat: -15, local: -5, standing: 15, wealth: 0, treasury: 0, log: "You voted down asset clarity. The opposition labelled your network corrupt, but peer relationships inside parliament stayed solid." },
+                bribe: { nat: -10, local: -2, standing: 10, wealth: 5, treasury: 0, log: "You publicly denounced the bill while quietly taking ₹5 Cr from a cartel to make sure it never clears subcommittee review." }
             }
         ];
 
@@ -225,7 +232,6 @@
         function handleChoice(type) {
             let action = activeScenario[type];
 
-            // Apply modifications
             nationalApproval = Math.max(0, Math.min(100, nationalApproval + action.nat));
             localSupport = Math.max(0, Math.min(100, localSupport + action.local));
             partyStanding = Math.max(0, Math.min(100, partyStanding + action.standing));
@@ -234,7 +240,6 @@
 
             document.getElementById("bill-text").innerText = action.log;
 
-            // Hide actions until next turn loop opens
             document.getElementById("vote-actions").classList.add("hidden");
             document.getElementById("corrupt-container").classList.add("hidden");
             document.getElementById("turn-actions").classList.remove("hidden");
@@ -247,7 +252,7 @@
             currentYear++;
             electionCountdown--;
             
-            // Earn baseline legitimate politician salary directly into personal bank account
+            // Fixed base salary payout per calendar turn
             personalWealth += 1; 
 
             if (electionCountdown <= 0) {
@@ -263,23 +268,21 @@
         }
 
         function runDistrictElection() {
-            alert(`🗳️ CONSTITUENCY ELECTION YEAR ${currentYear}!\nLocal officials are auditing voter turnouts inside your district...`);
+            alert(`🗳️ CONSTITUENCY GENERAL ELECTION YEAR ${currentYear}!\nLocal administrative observers are verifying district ballot calculations...`);
             
             if (localSupport < 50) {
-                // Fails local threshold check
-                endGame("LOST YOUR SEAT", `You pulled only ${localSupport}% of local votes in your constituency. You lost your seat to an opposition challenger!`);
+                endGame("ELECTION DEFEAT", `You captured only ${localSupport}% approval in your home voter district. An opposition rival unseated you!`);
             } else {
-                // Candidate survives, but checks if campaign funds can buy higher security margins
-                alert(`🎉 YOU WON RE-ELECTION!\nYour local support baseline of ${localSupport}% carried you through. You can use your private wealth to expand campaign structures.`);
-                localSupport = 50; // Reset support field to baseline for next 5-year sprint
+                alert(`🎉 CAREER EXTENDED!\nYour local constituency support score of ${localSupport}% safely cleared the 50% barrier. You retained your seat for another term.`);
+                localSupport = 50; 
             }
         }
 
         function checkSurvival() {
             if (partyStanding <= 15) {
-                endGame("EXPELLED FROM PARTY", "Your party leadership grew tired of your constant voting defiance. They cancelled your membership ticket!");
+                endGame("TICKET DENIED", "Your party leadership council grew exhausted by your independent voting track record. You were stripped of your ticket!");
             } else if (stateTreasury <= 0) {
-                endGame("STATE IMPLOSION", "The broader state treasury went bankrupt. Total structural default.");
+                endGame("FISCAL COLLAPSE", "The overall state apparatus completely defaulted on international bond obligations due to bankruptcy.");
             }
         }
 
@@ -299,11 +302,18 @@
                 <h2 style="color: #c62828;">${title}</h2>
                 <div style='background-color:#22140c; padding:15px; border-radius:5px; margin-bottom:15px; text-align:center;'>
                     <p>${text}</p>
-                    <p style='color:#ffeb3b;'>Final Private Fortune: ₹${personalWealth} Cr</p>
+                    <p style='color:#ffeb3b; font-weight:bold;'>Retirement Assets: ₹${personalWealth} Cr</p>
                 </div>
-                <button onclick="window.location.reload()" style="background-color: #8b5a2b; width:100%;">START A NEW CAREER</button>
+                <button onclick="window.location.reload()" style="background-color: #8b5a2b; width:100%;">REGISTER NEXT CAMPAIGN</button>
             `;
         }
     </script>
 </body>
 </html>
+       
+
+            
+            
+            
+            
+        
